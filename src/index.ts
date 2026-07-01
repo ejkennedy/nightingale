@@ -3,11 +3,15 @@ import { logger } from 'hono/logger';
 import { secureHeaders } from 'hono/secure-headers';
 import type { Env, ResilienceTier } from './env';
 import { activeTier } from './env';
+import { tools } from './routes/tools';
 
 const app = new Hono<{ Bindings: Env }>();
 
 app.use('*', logger());
 app.use('*', secureHeaders());
+
+// Orchestration tool contract (book / cancel / reschedule / slots).
+app.route('/tools', tools);
 
 /**
  * Liveness/readiness probe. Reports which resilience tier is active so the

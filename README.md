@@ -135,8 +135,8 @@ decision records.
 
 | Sprint | Focus                                                   | Status         |
 | ------ | ------------------------------------------------------- | -------------- |
-| 0      | Foundation, CI/CD, docs                                 | 🟡 in progress |
-| 1      | Data model + core tool router                           | ⚪ planned     |
+| 0      | Foundation, CI/CD, docs                                 | ✅ done        |
+| 1      | Data model + core tool router                           | 🟡 in progress |
 | 2      | Full call coverage + GPT brain + sim harness + security | ⚪ planned     |
 | 3      | Dashboard + observability + email                       | ⚪ planned     |
 | 4      | Real ElevenLabs voice + polish + live deploy            | ⚪ planned     |

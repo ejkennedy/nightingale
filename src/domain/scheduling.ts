@@ -8,20 +8,29 @@ import type { Practitioner, Slot, SlotOffer } from './types';
 export function formatSlotHuman(startsAtIso: string, timeZone: string): string {
   const d = new Date(startsAtIso);
   if (Number.isNaN(d.getTime())) return 'unknown time';
-  const date = new Intl.DateTimeFormat('en-GB', {
+
+  // Assemble from parts so the output is identical across ICU versions
+  // (Node vs workerd differ on punctuation for the composed `format()`).
+  const dateParts = new Intl.DateTimeFormat('en-GB', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
     timeZone,
-  }).format(d);
-  const time = new Intl.DateTimeFormat('en-GB', {
+  }).formatToParts(d);
+  const timeParts = new Intl.DateTimeFormat('en-GB', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
     timeZone,
-  })
-    .format(d)
-    .replace(/\s?([ap])m/i, (_m, p: string) => ` ${p.toLowerCase()}m`);
+  }).formatToParts(d);
+  const part = (parts: Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((p) => p.type === type)?.value ?? '';
+
+  const date = `${part(dateParts, 'weekday')} ${part(dateParts, 'day')} ${part(dateParts, 'month')}`;
+  const period = part(timeParts, 'dayPeriod')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '');
+  const time = `${part(timeParts, 'hour')}:${part(timeParts, 'minute')} ${period}`;
   return `${date}, ${time}`;
 }
 

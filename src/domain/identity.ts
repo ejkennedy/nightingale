@@ -34,7 +34,6 @@ export function isValidDob(dob: string): boolean {
 export function matchesIdentity(patient: Patient, claim: IdentityClaim): boolean {
   if (!isValidDob(claim.dob)) return false;
   return (
-    normaliseName(patient.last_name) === normaliseName(claim.lastName) &&
-    patient.dob === claim.dob
+    normaliseName(patient.last_name) === normaliseName(claim.lastName) && patient.dob === claim.dob
   );
 }
