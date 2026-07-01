@@ -5,6 +5,7 @@ import type { Env, ResilienceTier } from './env';
 import { activeTier } from './env';
 import { tools } from './routes/tools';
 import { sim } from './routes/sim';
+import { webhooks } from './routes/webhooks';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -15,6 +16,8 @@ app.use('*', secureHeaders());
 app.route('/tools', tools);
 // Simulated call harness (scripted scenarios + free-text chat).
 app.route('/sim', sim);
+// HMAC-verified webhook for the real ElevenLabs agent.
+app.route('/webhooks', webhooks);
 
 /**
  * Liveness/readiness probe. Reports which resilience tier is active so the

@@ -16,8 +16,9 @@ export default defineWorkersConfig(async () => {
         workers: {
           wrangler: { configPath: './wrangler.toml' },
           miniflare: {
-            // Passed to the setup file, which applies them to the test D1.
-            bindings: { TEST_MIGRATIONS: migrations },
+            // TEST_MIGRATIONS is consumed by the setup file; the webhook secret
+            // activates the HMAC-verified webhook route in integration tests.
+            bindings: { TEST_MIGRATIONS: migrations, WEBHOOK_HMAC_SECRET: 'test-secret' },
           },
         },
       },
