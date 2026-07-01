@@ -8,10 +8,13 @@
  */
 import { classifyUrgency, detectRedFlags, type Urgency } from '../domain/guardrails';
 import { answerFromKnowledge } from '../domain/knowledge';
-import { redactPayload } from '../domain/redact';
+import { redactEmail, redactPayload } from '../domain/redact';
 import { formatSlotHuman } from '../domain/scheduling';
 import { isBookable } from '../domain/scheduling';
-import type { IdentityClaim, SlotOffer } from '../domain/types';
+import type { IdentityClaim, Patient, SlotOffer } from '../domain/types';
+import type { Env } from '../env';
+import { insertEmail } from '../db/emails';
+import { renderConfirmationEmail, sendViaResend } from '../lib/email';
 import {
   cancelBooking,
   findAvailableSlots,
@@ -43,6 +46,8 @@ export interface Ctx {
   db: D1Database;
   now: Date;
   timeZone: string;
+  /** When present, a successful booking renders + stores (and maybe sends) a confirmation email. */
+  env?: Env;
 }
 
 /** Browse availability. No identity required — nothing personal is disclosed. */
@@ -86,7 +91,35 @@ export async function bookAppointment(
   const offer = await getSlotById(ctx.db, slot.id);
   const when = formatSlotHuman(offer!.starts_at, ctx.timeZone);
   const practitionerName = await practitionerNameForSlot(ctx.db, slot.id);
+  await sendConfirmation(ctx, patient, when, practitionerName);
   return { ok: true, appointmentId, when, practitionerName };
+}
+
+/** Render + store the confirmation email; send it for real when Resend is keyed. */
+async function sendConfirmation(
+  ctx: Ctx,
+  patient: Patient,
+  when: string,
+  practitioner: string,
+): Promise<void> {
+  if (!ctx.env) return;
+  const { subject, html } = renderConfirmationEmail({
+    agentName: ctx.env.AGENT_NAME,
+    practiceName: ctx.env.PRACTICE_NAME,
+    patientFirstName: patient.first_name,
+    when,
+    practitioner,
+  });
+  const sent = await sendViaResend(ctx.env, { to: patient.email, subject, html }).catch(
+    () => false,
+  );
+  await insertEmail(ctx.db, {
+    id: crypto.randomUUID(),
+    recipientRedacted: redactEmail(patient.email),
+    subject,
+    html,
+    sent,
+  });
 }
 
 /** Cancel an upcoming appointment for an identity-verified patient. */

@@ -71,6 +71,7 @@ const ctxFrom = (env: Env) => ({
   db: env.DB,
   now: new Date(),
   timeZone: env.PRACTICE_TIMEZONE,
+  env,
 });
 
 /** GET /tools/slots — browse availability (no identity needed). */

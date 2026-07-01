@@ -33,7 +33,7 @@ webhooks.post('/elevenlabs/tool', async (c) => {
   if (!body.tool) return c.json({ ok: false, error: 'missing_tool' }, 400);
 
   const result = await executeToolCall(
-    { db: c.env.DB, now: new Date(), timeZone: c.env.PRACTICE_TIMEZONE },
+    { db: c.env.DB, now: new Date(), timeZone: c.env.PRACTICE_TIMEZONE, env: c.env },
     { id: crypto.randomUUID(), name: body.tool, arguments: body.parameters ?? {} },
   );
   return c.json(result);
