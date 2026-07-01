@@ -4,6 +4,7 @@ import { secureHeaders } from 'hono/secure-headers';
 import type { Env, ResilienceTier } from './env';
 import { activeTier } from './env';
 import { tools } from './routes/tools';
+import { sim } from './routes/sim';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -12,6 +13,8 @@ app.use('*', secureHeaders());
 
 // Orchestration tool contract (book / cancel / reschedule / slots).
 app.route('/tools', tools);
+// Simulated call harness (scripted scenarios + free-text chat).
+app.route('/sim', sim);
 
 /**
  * Liveness/readiness probe. Reports which resilience tier is active so the

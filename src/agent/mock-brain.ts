@@ -33,10 +33,58 @@ function call(name: string, args: Record<string, unknown>): ToolCall {
   return { id: 'call_1', name, arguments: args };
 }
 
+/** Turn a tool result into a natural closing line so the agent loop terminates. */
+function summariseToolResult(name: string, content: string): string {
+  let r: Record<string, unknown>;
+  try {
+    r = JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    return 'Okay.';
+  }
+  if (r.ok === false)
+    return typeof r.message === 'string' ? r.message : 'Sorry, I could not do that.';
+  if (typeof r.message === 'string') return r.message; // triage / prescription
+  switch (name) {
+    case 'book_appointment':
+      return `You're booked in for ${r.when} with ${r.practitionerName}. Is there anything else?`;
+    case 'cancel_appointment':
+      return `That's done — your appointment on ${r.when} has been cancelled.`;
+    case 'reschedule_appointment':
+      return `Done — moved from ${r.from} to ${r.to} with ${r.practitionerName}.`;
+    case 'confirm_appointment': {
+      const appts = (r.appointments as Array<{ when: string; practitionerName: string }>) ?? [];
+      return appts.length
+        ? `You have: ${appts.map((a) => `${a.when} with ${a.practitionerName}`).join('; ')}.`
+        : 'You have no upcoming appointments.';
+    }
+    case 'answer_faq':
+      return typeof r.answer === 'string' ? r.answer : 'Let me pass you to reception.';
+    case 'list_slots': {
+      const slots =
+        (r.slots as Array<{ when: string; practitionerName: string; slotId: string }>) ?? [];
+      return slots.length
+        ? `The next available are: ${slots
+            .slice(0, 3)
+            .map((s) => `${s.when} with ${s.practitionerName} (${s.slotId})`)
+            .join('; ')}. Which would you like?`
+        : 'Sorry, there are no available slots right now.';
+    }
+    default:
+      return 'Okay, that’s done.';
+  }
+}
+
 export class MockBrain implements AgentBrain {
   readonly name = 'mock';
 
   async respond(messages: BrainMessage[], _tools: ToolSchema[]): Promise<BrainTurn> {
+    // If the last message is a tool result, close the turn with a summary so the
+    // agent loop terminates rather than re-issuing the same tool call.
+    const last = messages[messages.length - 1];
+    if (last?.role === 'tool') {
+      return { assistantText: summariseToolResult(last.name ?? '', last.content), toolCalls: [] };
+    }
+
     const text = lastUserMessage(messages);
     const t = text.toLowerCase();
     const id = extractIdentity(text);
