@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.wrangler/
+worker-configuration.d.ts
+
+# Local secrets — NEVER commit real keys
+.dev.vars
+.env
+.env.*
+!.dev.vars.example
+
+# Local D1 / miniflare state
+.mf/
+
+# Logs & OS cruft
+*.log
+.DS_Store
+
+# Editor
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Test coverage
+coverage/

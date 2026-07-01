@@ -1,0 +1,38 @@
+# Nightingale — Cloudflare Workers config
+# Single Worker serves BOTH the orchestration API (tool webhooks + sim harness)
+# and the HTMX demo dashboard.
+name = "nightingale"
+main = "src/index.ts"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat"]
+
+# Surface logs/metrics in the Cloudflare dashboard (free tier).
+[observability]
+enabled = true
+
+# ---------------------------------------------------------------------------
+# D1 — source of truth for practitioners, patients, slots, appointments, logs.
+# For local dev the database_id is ignored (a local SQLite file is used).
+# For remote deploys, replace database_id with the real id from:
+#   wrangler d1 create nightingale
+# and store it here (safe to commit — it is not a secret).
+# ---------------------------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "nightingale"
+database_id = "00000000-0000-0000-0000-000000000000" # TODO: replace after `wrangler d1 create`
+migrations_dir = "migrations"
+
+# ---------------------------------------------------------------------------
+# Non-secret vars. Secrets (OPENAI_API_KEY, RESEND_API_KEY, ELEVENLABS_*,
+# ADMIN_TOKEN, WEBHOOK_HMAC_SECRET) are set via `wrangler secret put` or the
+# GitHub Actions environment — never committed. See .dev.vars.example.
+# ---------------------------------------------------------------------------
+[vars]
+PRACTICE_NAME = "Meadowbrook Health Centre"
+PRACTICE_TIMEZONE = "Europe/London"
+AGENT_NAME = "Nightingale"
+ENVIRONMENT = "development"
+
+# Durable Objects (session state + rate limiting) and R2 (versioned prompts)
+# are added in later sprints — see docs/PLAN.md.

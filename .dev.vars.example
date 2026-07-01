@@ -1,0 +1,21 @@
+# Copy to `.dev.vars` for local development (`wrangler dev` loads it automatically).
+# `.dev.vars` is git-ignored. In production these are set as Wrangler secrets /
+# GitHub Actions secrets. Nightingale runs in a degraded-but-working "tier 3"
+# mode with NONE of these set (deterministic scripted scenarios + rendered
+# email preview), so an interviewer can always click the link and see it work.
+
+# --- Tier 2: GPT text-chat harness + real agent reasoning ---
+OPENAI_API_KEY=""
+
+# --- Tier 1: real ElevenLabs voice widget + signed tool webhooks ---
+ELEVENLABS_API_KEY=""
+ELEVENLABS_AGENT_ID=""
+# Shared secret used to HMAC-verify inbound ElevenLabs tool-call webhooks.
+WEBHOOK_HMAC_SECRET=""
+
+# --- Real email confirmations (optional; preview always renders without it) ---
+RESEND_API_KEY=""
+RESEND_FROM="Nightingale <noreply@your-verified-domain>"
+
+# --- Gated write/admin actions (re-seed DB, edit prompts) ---
+ADMIN_TOKEN="change-me-locally"
