@@ -133,13 +133,13 @@ Built in the open as portfolio work, following a lightweight Agile process
 for the sprint roadmap and **[docs/adr/](./docs/adr/)** for the architecture
 decision records.
 
-| Sprint | Focus                                                   | Status         |
-| ------ | ------------------------------------------------------- | -------------- |
-| 0      | Foundation, CI/CD, docs                                 | ✅ done        |
-| 1      | Data model + core tool router                           | ✅ done        |
-| 2      | Full call coverage + GPT brain + sim harness + security | ✅ done        |
-| 3      | Dashboard + observability + email                       | ⚪ planned     |
-| 4      | Real ElevenLabs voice + polish + live deploy            | ⚪ planned     |
+| Sprint | Focus                                                   | Status     |
+| ------ | ------------------------------------------------------- | ---------- |
+| 0      | Foundation, CI/CD, docs                                 | ✅ done    |
+| 1      | Data model + core tool router                           | ✅ done    |
+| 2      | Full call coverage + GPT brain + sim harness + security | ✅ done    |
+| 3      | Dashboard + observability + email                       | ⚪ planned |
+| 4      | Real ElevenLabs voice + polish + live deploy            | ⚪ planned |
 
 ## License
 
