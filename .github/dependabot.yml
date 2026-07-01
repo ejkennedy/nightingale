@@ -1,6 +1,9 @@
 version: 2
 updates:
   # Application dependencies (npm registry; bun-managed manifest).
+  # During active development we take grouped minor/patch updates automatically
+  # and review MAJOR bumps by hand (they tend to be breaking, and Dependabot's
+  # bun.lock support is partial, so a frozen-lockfile CI install can mismatch).
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -10,8 +13,17 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "chore(deps)"
+    groups:
+      npm-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
 
-  # Keep GitHub Actions pinned versions fresh and patched.
+  # Keep GitHub Actions pinned versions fresh (minor/patch), grouped into one PR.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -21,3 +33,11 @@ updates:
       - "infrastructure"
     commit-message:
       prefix: "ci(deps)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
