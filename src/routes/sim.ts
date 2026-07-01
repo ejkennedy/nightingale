@@ -23,7 +23,12 @@ export const sim = new Hono<{ Bindings: Env }>();
 sim.use('/scenario', rateLimit());
 sim.use('/message', rateLimit());
 
-const ctxFrom = (env: Env) => ({ db: env.DB, now: new Date(), timeZone: env.PRACTICE_TIMEZONE });
+const ctxFrom = (env: Env) => ({
+  db: env.DB,
+  now: new Date(),
+  timeZone: env.PRACTICE_TIMEZONE,
+  env,
+});
 
 /** List the available scripted scenarios (for the dashboard buttons). */
 sim.get('/scenarios', (c) =>
@@ -32,18 +37,20 @@ sim.get('/scenarios', (c) =>
   }),
 );
 
-/** Run a scripted scenario deterministically against real D1 (always works). */
-sim.post('/scenario', async (c) => {
-  const { id } = (await c.req.json().catch(() => ({}))) as { id?: string };
+/**
+ * Run a scripted scenario deterministically against real D1. Exported so both
+ * the JSON API and the dashboard's HTMX buttons share one implementation.
+ */
+export async function runScenarioCall(env: Env, id: string) {
   const scenario = SCENARIOS.find((s) => s.id === id);
-  if (!scenario) return c.json({ ok: false, error: 'unknown_scenario' }, 404);
+  if (!scenario) return null;
 
   const callId = crypto.randomUUID();
-  await startCall(c.env.DB, { id: callId, channel: 'scripted', callerRef: `scenario:${id}` });
-  const { text: systemPrompt } = await loadSystemPrompt(c.env);
+  await startCall(env.DB, { id: callId, channel: 'scripted', callerRef: `scenario:${id}` });
+  const { text: systemPrompt } = await loadSystemPrompt(env);
   const run = await runScenario({
     brain: new MockBrain(), // scripted tier is always deterministic
-    ctx: ctxFrom(c.env),
+    ctx: ctxFrom(env),
     callId,
     systemPrompt,
     scenario,
@@ -52,8 +59,16 @@ sim.post('/scenario', async (c) => {
   const escalated = run.invocations.some(
     (i) => i.name === 'triage_symptoms' || i.name === 'capture_prescription',
   );
-  await endCall(c.env.DB, { id: callId, outcome: escalated ? 'escalated' : 'contained' });
-  return c.json({ ok: true, callId, tier: 'scripted', ...run });
+  await endCall(env.DB, { id: callId, outcome: escalated ? 'escalated' : 'contained' });
+  return { callId, scenario, ...run };
+}
+
+/** Run a scripted scenario deterministically against real D1 (always works). */
+sim.post('/scenario', async (c) => {
+  const { id } = (await c.req.json().catch(() => ({}))) as { id?: string };
+  const result = id ? await runScenarioCall(c.env, id) : null;
+  if (!result) return c.json({ ok: false, error: 'unknown_scenario' }, 404);
+  return c.json({ ok: true, tier: 'scripted', ...result });
 });
 
 const messageBody = z.object({

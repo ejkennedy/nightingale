@@ -23,6 +23,7 @@ export default defineWorkersConfig(async () => {
             bindings: {
               TEST_MIGRATIONS: migrations,
               WEBHOOK_HMAC_SECRET: 'test-secret',
+              ADMIN_TOKEN: 'test-admin',
               ENVIRONMENT: 'test',
             },
           },
