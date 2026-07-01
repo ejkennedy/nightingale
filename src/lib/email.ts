@@ -17,18 +17,18 @@ export function renderConfirmationEmail(d: ConfirmationDetails): { subject: stri
   const subject = `Appointment confirmed — ${d.practiceName}`;
   const html = `<!doctype html>
 <html>
-  <body style="font-family: ui-sans-serif, system-ui, sans-serif; color: #1a2b4a; background:#f4f7fb; padding:24px;">
-    <div style="max-width:520px;margin:auto;background:#fff;border-radius:12px;padding:28px;border:1px solid #e2e8f0;">
-      <p style="font-size:18px;font-weight:700;margin:0 0 4px;">🕊️ ${d.practiceName}</p>
-      <p style="color:#5b6b85;margin:0 0 20px;">Appointment confirmation</p>
+  <body style="font-family: ui-sans-serif, system-ui, sans-serif; color:#1f2d29; background:#f2ede3; padding:24px;">
+    <div style="max-width:520px;margin:auto;background:#fbf8f2;border-radius:14px;padding:28px;border:1px solid #e6dfd0;">
+      <p style="font-size:18px;font-weight:700;margin:0 0 4px;color:#0f5e54;">🪔 ${d.practiceName}</p>
+      <p style="color:#5f665d;margin:0 0 20px;">Appointment confirmation</p>
       <p>Hello ${d.patientFirstName},</p>
       <p>Your appointment is confirmed:</p>
       <table style="width:100%;border-collapse:collapse;margin:12px 0;">
-        <tr><td style="padding:8px 0;color:#5b6b85;">When</td><td style="padding:8px 0;font-weight:600;">${d.when}</td></tr>
-        <tr><td style="padding:8px 0;color:#5b6b85;">With</td><td style="padding:8px 0;font-weight:600;">${d.practitioner}</td></tr>
+        <tr><td style="padding:8px 0;color:#5f665d;">When</td><td style="padding:8px 0;font-weight:600;">${d.when}</td></tr>
+        <tr><td style="padding:8px 0;color:#5f665d;">With</td><td style="padding:8px 0;font-weight:600;">${d.practitioner}</td></tr>
       </table>
-      <p style="color:#5b6b85;font-size:13px;margin-top:20px;">Need to change it? Just call us back and ${d.agentName} can help. Please arrive 5 minutes early.</p>
-      <p style="color:#9aa7bd;font-size:12px;margin-top:16px;">This is a demonstration message. ${d.practiceName} is not a real practice.</p>
+      <p style="color:#5f665d;font-size:13px;margin-top:20px;">Need to change it? Just call us back and ${d.agentName} can help. Please arrive 5 minutes early.</p>
+      <p style="color:#9aa39a;font-size:12px;margin-top:16px;">This is a demonstration message. ${d.practiceName} is not a real practice.</p>
     </div>
   </body>
 </html>`;

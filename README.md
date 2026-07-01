@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🕊️ Nightingale
+# 🪔 Nightingale
 
 ### An AI receptionist for UK GP &amp; dental practices
 
@@ -12,6 +12,12 @@ Books, cancels, reschedules and confirms appointments over voice — and safely
 [![Cloudflare Workers](https://img.shields.io/badge/edge-Cloudflare_Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 [![Voice: ElevenLabs](https://img.shields.io/badge/voice-ElevenLabs_Conversational_AI-000000)](https://elevenlabs.io/conversational-ai)
 
+</div>
+
+<div align="center">
+  <img src="./docs/dashboard.png" alt="Nightingale dashboard — live transcript, booking log, per-tool latency, escalations and the rendered confirmation email" width="880" />
+  <br />
+  <em>The single-URL demo console — live transcript, bookings, latency, escalations and a rendered email, with <strong>no API keys required</strong> (Tier 3). <a href="./docs/dashboard-mobile.png">Mobile view →</a></em>
 </div>
 
 ---
@@ -87,6 +93,26 @@ built-in fallback harness, so the demo link **never dies**:
 Hand the URL to anyone, with zero keys configured, and every
 book/cancel/reschedule path still executes for real against the database.
 
+## Take the 90-second tour
+
+Open the dashboard (`bun run dev` → `http://localhost:8787`) and, with **no keys
+configured**:
+
+1. **Book** — click **"Book a GP appointment."** Watch the live transcript stream
+   the caller/agent turns, the `list_slots` → `book_appointment` tool calls
+   resolve, a row appear in the **booking log** as _John T._, timings post to the
+   **p50/p95 latency** table, and the **confirmation email** render on the right.
+2. **Escalate safely** — click **"Urgent triage (red flag)."** The agent spots the
+   red-flag symptom, gives **no medical advice**, and files an **emergency**
+   escalation — never a booking.
+3. **Try to break it** — the eval suite already does: prompt injection is refused,
+   an identity mismatch is blocked at the tool layer, advice-baiting gets no
+   dosage. See the [evaluation report](./docs/EVAL_REPORT.md).
+4. **Reset** — expand **Admin controls** and re-seed for a clean slate.
+
+Every button drives the **real agent and its tools against a real database** — the
+numbers on screen are genuine, not mocked.
+
 ## Responsible AI in a high-stakes domain
 
 Healthcare reception involves **special-category health data** and vulnerable
@@ -100,13 +126,15 @@ property — never left to the system prompt. See
 - 🛡️ **Guardrails in code** — the tool router itself refuses to cancel/confirm
   without a verified name + DOB, so a jailbroken prompt still can't bypass it.
   The agent never diagnoses, never invents slots, and always escalates red-flags.
-- 🧪 **Evals** — a versioned scenario dataset (all 7 call types **plus**
-  adversarial cases: prompt injection, red-flag symptoms, identity mismatch,
-  double-booking, off-topic) with a harness asserting tool-selection accuracy and
-  every guardrail invariant. Runs against a deterministic mock brain in CI and
-  live GPT when keyed.
+- 🧪 **Evals** — a versioned dataset of **9 scenarios** (4 happy-path + 5
+  adversarial: prompt injection, red-flag symptoms, identity mismatch,
+  advice-baiting, off-topic) with a harness asserting tool-selection accuracy and
+  every guardrail invariant — **9/9** against a deterministic mock brain in CI,
+  and live GPT when keyed. See the auto-generated
+  [evaluation report](./docs/EVAL_REPORT.md).
 - ✅ **Security** — HMAC-verified webhooks, per-IP rate limiting, admin-gated
-  writes, least-privilege deploy token, dependency + secret scanning.
+  writes, least-privilege deploy token, dependency + secret scanning; verified in
+  the [security review](./docs/SECURITY_REVIEW.md).
 - 🔁 **Testing throughout** — unit · integration (workerd + D1) · guardrail ·
   eval, all green in CI on every push.
 
@@ -120,6 +148,11 @@ bun run dev                      # http://localhost:8787
 ```
 
 Check it's alive: `curl localhost:8787/health` → reports the active tier.
+
+```bash
+bun run test                     # 93 tests: unit · integration (workerd + D1) · guardrail · eval
+bun run eval:report              # regenerate docs/EVAL_REPORT.md from a real run
+```
 
 ## Tech stack
 
