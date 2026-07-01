@@ -41,4 +41,11 @@ ENVIRONMENT = "development"
 binding = "PROMPTS"
 bucket_name = "nightingale-prompts"
 
-# Durable Objects (session state + rate limiting) are added later this sprint.
+# Durable Objects — per-IP rate limiting for the public sim endpoints (ADR-0006).
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RateLimiter"]

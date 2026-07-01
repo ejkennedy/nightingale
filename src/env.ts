@@ -11,6 +11,8 @@ export interface Env {
   DB: D1Database;
   /** Versioned system prompts (optional; falls back to the bundled prompt). */
   PROMPTS?: R2Bucket;
+  /** Per-IP rate limiter for the public sim write endpoints. */
+  RATE_LIMITER: DurableObjectNamespace;
 
   // --- Non-secret vars (wrangler.toml [vars]) ---
   PRACTICE_NAME: string;
@@ -26,6 +28,8 @@ export interface Env {
   RESEND_API_KEY?: string;
   RESEND_FROM?: string;
   ADMIN_TOKEN?: string;
+  /** Max sim writes per IP per minute (non-secret var; default 20). */
+  SIM_RATE_LIMIT?: string;
 }
 
 /** Which resilience tier is currently active, given the configured secrets. */

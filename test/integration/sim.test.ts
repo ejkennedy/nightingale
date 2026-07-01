@@ -1,5 +1,6 @@
 import { env, SELF } from 'cloudflare:test';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { resetDb } from '../helpers/db';
 
 /** Integration tests for the simulated call harness (scripted + free-text). */
 
@@ -20,7 +21,10 @@ const runScenario = (id: string) =>
     body: JSON.stringify({ id }),
   });
 
-beforeEach(seedFixture);
+beforeEach(async () => {
+  await resetDb();
+  await seedFixture();
+});
 
 describe('POST /sim/scenario (tier 3, deterministic, no keys)', () => {
   it('books a real appointment end to end via the agent loop', async () => {

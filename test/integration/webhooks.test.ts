@@ -1,6 +1,7 @@
 import { env, SELF } from 'cloudflare:test';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { hmacSha256Hex } from '../../src/lib/hmac';
+import { resetDb } from '../helpers/db';
 
 /** The ElevenLabs webhook must reject unsigned/forged calls and honour valid ones. */
 
@@ -25,7 +26,10 @@ const send = (body: unknown, signature?: string) =>
     body: JSON.stringify(body),
   });
 
-beforeEach(seedFixture);
+beforeEach(async () => {
+  await resetDb();
+  await seedFixture();
+});
 
 describe('POST /webhooks/elevenlabs/tool', () => {
   it('rejects a request with no signature (401)', async () => {

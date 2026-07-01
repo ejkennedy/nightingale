@@ -15,8 +15,13 @@ import { runAgentTurn } from '../agent/loop';
 import { runScenario, SCENARIOS } from '../agent/scenarios';
 import type { BrainMessage } from '../agent/brain';
 import { endCall, logEvent, startCall } from '../db/logging';
+import { rateLimit } from '../middleware/rate-limit';
 
 export const sim = new Hono<{ Bindings: Env }>();
+
+// Public write endpoints are rate-limited per IP (ADR-0006).
+sim.use('/scenario', rateLimit());
+sim.use('/message', rateLimit());
 
 const ctxFrom = (env: Env) => ({ db: env.DB, now: new Date(), timeZone: env.PRACTICE_TIMEZONE });
 

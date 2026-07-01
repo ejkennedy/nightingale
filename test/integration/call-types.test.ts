@@ -1,5 +1,6 @@
 import { env, SELF } from 'cloudflare:test';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { resetDb } from '../helpers/db';
 
 /** Integration tests for confirm / faq / prescription / triage. */
 
@@ -33,7 +34,10 @@ const countEscalations = async (type: string) =>
       .first<{ n: number }>()
   )?.n ?? 0;
 
-beforeEach(seedFixture);
+beforeEach(async () => {
+  await resetDb();
+  await seedFixture();
+});
 
 describe('POST /tools/confirm', () => {
   it('reads back the upcoming appointment for a verified patient', async () => {

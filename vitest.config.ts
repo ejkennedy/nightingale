@@ -16,9 +16,15 @@ export default defineWorkersConfig(async () => {
         workers: {
           wrangler: { configPath: './wrangler.toml' },
           miniflare: {
-            // TEST_MIGRATIONS is consumed by the setup file; the webhook secret
-            // activates the HMAC-verified webhook route in integration tests.
-            bindings: { TEST_MIGRATIONS: migrations, WEBHOOK_HMAC_SECRET: 'test-secret' },
+            // TEST_MIGRATIONS is consumed by the setup file; WEBHOOK_HMAC_SECRET
+            // activates the webhook route; ENVIRONMENT=test makes the rate-limit
+            // middleware skip the Durable Object (its window logic is unit-tested
+            // directly, since DOs break the pinned pool's storage isolation).
+            bindings: {
+              TEST_MIGRATIONS: migrations,
+              WEBHOOK_HMAC_SECRET: 'test-secret',
+              ENVIRONMENT: 'test',
+            },
           },
         },
       },

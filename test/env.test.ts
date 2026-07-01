@@ -5,6 +5,7 @@ import { activeTier, type Env } from '../src/env';
 function envWith(secrets: Partial<Env> = {}): Env {
   return {
     DB: {} as D1Database,
+    RATE_LIMITER: {} as DurableObjectNamespace,
     PRACTICE_NAME: 'Test Practice',
     PRACTICE_TIMEZONE: 'Europe/London',
     AGENT_NAME: 'Nightingale',

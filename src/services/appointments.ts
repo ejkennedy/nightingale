@@ -39,7 +39,7 @@ function fail(code: ToolErrorCode, message: string, details?: unknown): ToolResu
   return { ok: false, code, message, details };
 }
 
-interface Ctx {
+export interface Ctx {
   db: D1Database;
   now: Date;
   timeZone: string;

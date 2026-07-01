@@ -66,4 +66,7 @@ app.get('/', (c) => {
   );
 });
 
+// Durable Object class must be exported from the entry module.
+export { RateLimiter } from './durable/rate-limiter';
+
 export default app;

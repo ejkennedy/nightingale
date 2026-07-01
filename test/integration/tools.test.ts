@@ -1,5 +1,6 @@
 import { env, SELF } from 'cloudflare:test';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { resetDb } from '../helpers/db';
 
 /**
  * End-to-end integration tests for the tool router, exercised through the real
@@ -36,7 +37,10 @@ const post = (path: string, body: unknown) =>
 const slotStatus = (id: string) =>
   env.DB.prepare('SELECT status FROM slots WHERE id = ?').bind(id).first<{ status: string }>();
 
-beforeEach(seedFixture);
+beforeEach(async () => {
+  await resetDb();
+  await seedFixture();
+});
 
 describe('GET /tools/slots', () => {
   it('lists available future slots without requiring identity', async () => {
