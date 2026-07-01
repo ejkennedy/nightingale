@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # Application dependencies (npm registry; bun-managed manifest).
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Keep GitHub Actions pinned versions fresh and patched.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "infrastructure"
+    commit-message:
+      prefix: "ci(deps)"

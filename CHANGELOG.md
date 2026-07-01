@@ -14,5 +14,8 @@ All notable changes to Nightingale are documented here. The format follows
 - Resilience-tier selection logic (`activeTier`) with unit tests.
 - CI workflow (lint · typecheck · test) and a dormant CD workflow
   (GitHub Actions → Cloudflare Workers, guarded by `DEPLOY_ENABLED`).
-- Documentation: README, delivery plan (`docs/PLAN.md`), six ADRs, architecture
+- Documentation: README, delivery plan (`docs/PLAN.md`), seven ADRs, architecture
   diagram.
+- Quality &amp; safety foundations: `SECURITY.md` policy, guardrails/evals/
+  sensitive-data ADR, secure headers, CodeQL + Dependabot + `bun audit` scanning,
+  and a plan workstream making safety a code-enforced, continuously-tested concern.

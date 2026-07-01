@@ -33,21 +33,21 @@ verification, and a live observability dashboard.
 
 **5 containable call types** the agent handles autonomously:
 
-| Call type | What Nightingale does |
-| --- | --- |
-| 📅 **Book** | Finds a suitable slot with the right clinician and books it |
-| ❌ **Cancel** | Verifies identity, releases the slot |
-| 🔄 **Reschedule** | Cancels + rebooks in one flow |
-| ✅ **Confirm existing** | Reads back a caller's upcoming appointment |
-| ℹ️ **FAQ** | Opening hours, location, services, how to register |
+| Call type               | What Nightingale does                                       |
+| ----------------------- | ----------------------------------------------------------- |
+| 📅 **Book**             | Finds a suitable slot with the right clinician and books it |
+| ❌ **Cancel**           | Verifies identity, releases the slot                        |
+| 🔄 **Reschedule**       | Cancels + rebooks in one flow                               |
+| ✅ **Confirm existing** | Reads back a caller's upcoming appointment                  |
+| ℹ️ **FAQ**              | Opening hours, location, services, how to register          |
 
-**2 safety-first escalations** — because a receptionist that *doesn't know its
-limits* is dangerous in healthcare:
+**2 safety-first escalations** — because a receptionist that _doesn't know its
+limits_ is dangerous in healthcare:
 
-| Flow | Behaviour |
-| --- | --- |
-| 💊 **Repeat prescription** | Captures the request and routes to a human/pharmacist — never fulfils autonomously |
-| 🚨 **Urgent triage** | Detects red-flag symptoms, gives no medical advice, and hands off to a clinician / directs to 999 |
+| Flow                       | Behaviour                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------- |
+| 💊 **Repeat prescription** | Captures the request and routes to a human/pharmacist — never fulfils autonomously                |
+| 🚨 **Urgent triage**       | Detects red-flag symptoms, gives no medical advice, and hands off to a clinician / directs to 999 |
 
 ## Architecture
 
@@ -78,14 +78,37 @@ limits* is dangerous in healthcare:
 The same backend tool contract is hit identically by real voice and by a
 built-in fallback harness, so the demo link **never dies**:
 
-| Tier | Requires | Experience |
-| --- | --- | --- |
-| **1 · Voice** | ElevenLabs key | Real spoken conversation via the browser widget |
-| **2 · GPT chat** | OpenAI key | Type as the patient; GPT plays the agent with real tools |
-| **3 · Scripted** | *nothing* | One-click canned call scenarios replay against **real D1 writes** |
+| Tier             | Requires       | Experience                                                        |
+| ---------------- | -------------- | ----------------------------------------------------------------- |
+| **1 · Voice**    | ElevenLabs key | Real spoken conversation via the browser widget                   |
+| **2 · GPT chat** | OpenAI key     | Type as the patient; GPT plays the agent with real tools          |
+| **3 · Scripted** | _nothing_      | One-click canned call scenarios replay against **real D1 writes** |
 
 Hand the URL to anyone, with zero keys configured, and every
 book/cancel/reschedule path still executes for real against the database.
+
+## Responsible AI in a high-stakes domain
+
+Healthcare reception involves **special-category health data** and vulnerable
+callers, so safety is treated as a **code-enforced, continuously-tested**
+property — never left to the system prompt. See
+[ADR-0007](./docs/adr/0007-guardrails-evals-and-sensitive-data.md) and
+[SECURITY.md](./SECURITY.md).
+
+- 🔒 **Sensitive data** — synthetic-only data, data minimisation, PII masked
+  (`07*** ***123`) before it hits any log, transcript or analytics.
+- 🛡️ **Guardrails in code** — the tool router itself refuses to cancel/confirm
+  without a verified name + DOB, so a jailbroken prompt still can't bypass it.
+  The agent never diagnoses, never invents slots, and always escalates red-flags.
+- 🧪 **Evals** — a versioned scenario dataset (all 7 call types **plus**
+  adversarial cases: prompt injection, red-flag symptoms, identity mismatch,
+  double-booking, off-topic) with a harness asserting tool-selection accuracy and
+  every guardrail invariant. Runs against a deterministic mock brain in CI and
+  live GPT when keyed.
+- ✅ **Security** — HMAC-verified webhooks, per-IP rate limiting, admin-gated
+  writes, least-privilege deploy token, dependency + secret scanning.
+- 🔁 **Testing throughout** — unit · integration (workerd + D1) · guardrail ·
+  eval, all green in CI on every push.
 
 ## Quick start
 
@@ -110,13 +133,13 @@ Built in the open as portfolio work, following a lightweight Agile process
 for the sprint roadmap and **[docs/adr/](./docs/adr/)** for the architecture
 decision records.
 
-| Sprint | Focus | Status |
-| --- | --- | --- |
-| 0 | Foundation, CI/CD, docs | 🟡 in progress |
-| 1 | Data model + core tool router | ⚪ planned |
-| 2 | Full call coverage + GPT brain + sim harness + security | ⚪ planned |
-| 3 | Dashboard + observability + email | ⚪ planned |
-| 4 | Real ElevenLabs voice + polish + live deploy | ⚪ planned |
+| Sprint | Focus                                                   | Status         |
+| ------ | ------------------------------------------------------- | -------------- |
+| 0      | Foundation, CI/CD, docs                                 | 🟡 in progress |
+| 1      | Data model + core tool router                           | ⚪ planned     |
+| 2      | Full call coverage + GPT brain + sim harness + security | ⚪ planned     |
+| 3      | Dashboard + observability + email                       | ⚪ planned     |
+| 4      | Real ElevenLabs voice + polish + live deploy            | ⚪ planned     |
 
 ## License
 

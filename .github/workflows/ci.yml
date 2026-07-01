@@ -36,3 +36,6 @@ jobs:
 
       - name: Unit & integration tests
         run: bun run test
+
+      - name: Dependency audit
+        run: bun audit || true # informational: surface advisories without blocking merges
