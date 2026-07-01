@@ -138,7 +138,7 @@ decision records.
 | 0      | Foundation, CI/CD, docs                                 | ✅ done    |
 | 1      | Data model + core tool router                           | ✅ done    |
 | 2      | Full call coverage + GPT brain + sim harness + security | ✅ done    |
-| 3      | Dashboard + observability + email                       | ⚪ planned |
+| 3      | Dashboard + observability + email                       | ✅ done    |
 | 4      | Real ElevenLabs voice + polish + live deploy            | ⚪ planned |
 
 ## License

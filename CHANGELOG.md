@@ -6,6 +6,21 @@ All notable changes to Nightingale are documented here. The format follows
 
 ## [Unreleased]
 
+### Sprint 3 — Live dashboard, observability &amp; confirmation emails
+
+- Single-URL demo console (now the landing page): stats row (calls, containment,
+  bookings, escalations, open tasks), live call transcript, booking log, per-tool
+  latency (p50/p95), escalations and rendered emails — refreshed as HTMX
+  fragments, no API keys required.
+- "Run a demo call" control drives the scripted scenarios from the browser; an
+  admin-token-gated "re-seed" resets the synthetic data for a clean demo.
+- PII-safe read model: names are minimised on display (e.g. "John T."), and no
+  raw phone / email / DOB ever reaches the UI.
+- Confirmation emails: successful bookings render + store an email (recipient
+  address redacted) and send it via Resend when keyed; without a key the email is
+  still previewed in the dashboard, consistent with the no-keys demo tiers.
+- Dashboard integration tests (page shell, live-panel updates, admin gate).
+
 ### Sprint 2 — Full call coverage, brain, sim harness, guardrails &amp; security
 
 - Remaining call types: confirm, FAQ (grounded knowledge), repeat-prescription
