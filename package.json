@@ -21,6 +21,8 @@
     "cf-typegen": "wrangler types",
     "test": "vitest run",
     "test:watch": "vitest",
+    "eval": "vitest run test/evals",
+    "eval:report": "bun run scripts/eval-report.ts",
     "lint": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "db:generate-seed": "bun run scripts/generate-seed.ts",

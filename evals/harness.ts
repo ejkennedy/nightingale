@@ -12,6 +12,12 @@ import type { EvalCase, GuardName } from './dataset';
 
 export interface EvalResult {
   id: string;
+  category: EvalCase['category'];
+  utterance: string;
+  expectTool: string | null;
+  guardrails: GuardName[];
+  /** Tool the agent actually selected first (or null if it called none). */
+  actualTool: string | null;
   passed: boolean;
   failures: string[];
 }
@@ -111,7 +117,16 @@ async function runCase(
     if (failure) failures.push(`[${guard}] ${failure}`);
   }
 
-  return { id: c.id, passed: failures.length === 0, failures };
+  return {
+    id: c.id,
+    category: c.category,
+    utterance: c.utterance,
+    expectTool: c.expectTool,
+    guardrails: c.guardrails ?? [],
+    actualTool: first?.name ?? null,
+    passed: failures.length === 0,
+    failures,
+  };
 }
 
 export async function runEvals(

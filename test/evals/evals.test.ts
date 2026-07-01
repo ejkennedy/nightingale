@@ -38,6 +38,10 @@ describe('eval suite (MockBrain)', () => {
     const failed = report.results.filter((r) => !r.passed);
     if (failed.length) console.error('Eval failures:', JSON.stringify(failed, null, 2));
 
+    // Emit the full report on a stable marker line so `bun run eval:report`
+    // can render docs/EVAL_REPORT.md from a real run rather than hand-typed numbers.
+    console.log(`##EVAL_REPORT_JSON##${JSON.stringify(report)}`);
+
     expect(report.total).toBe(EVAL_DATASET.length);
     expect(report.passed).toBe(report.total);
     expect(report.score).toBe(1);
