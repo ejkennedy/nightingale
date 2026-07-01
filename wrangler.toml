@@ -34,5 +34,11 @@ PRACTICE_TIMEZONE = "Europe/London"
 AGENT_NAME = "Nightingale"
 ENVIRONMENT = "development"
 
-# Durable Objects (session state + rate limiting) and R2 (versioned prompts)
-# are added in later sprints — see docs/PLAN.md.
+# R2 — versioned system prompts (ADR-0004/0007). Local dev/CI auto-creates this
+# bucket in miniflare; for remote deploy run `wrangler r2 bucket create nightingale-prompts`.
+# The prompt loader falls back to the bundled prompt if the bucket is absent.
+[[r2_buckets]]
+binding = "PROMPTS"
+bucket_name = "nightingale-prompts"
+
+# Durable Objects (session state + rate limiting) are added later this sprint.

@@ -9,6 +9,8 @@
 export interface Env {
   // --- Bindings ---
   DB: D1Database;
+  /** Versioned system prompts (optional; falls back to the bundled prompt). */
+  PROMPTS?: R2Bucket;
 
   // --- Non-secret vars (wrangler.toml [vars]) ---
   PRACTICE_NAME: string;
