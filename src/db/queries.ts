@@ -133,6 +133,25 @@ export async function cancelBooking(
   ]);
 }
 
+/** Record a captured request routed to a human (prescription / triage). */
+export async function insertEscalation(
+  db: D1Database,
+  args: {
+    id: string;
+    type: 'prescription' | 'triage' | 'other';
+    patientId: string | null;
+    summary: string;
+    urgency: 'routine' | 'urgent' | 'emergency' | null;
+  },
+): Promise<void> {
+  await db
+    .prepare(
+      'INSERT INTO escalations (id, type, patient_id, summary, urgency) VALUES (?, ?, ?, ?, ?)',
+    )
+    .bind(args.id, args.type, args.patientId, args.summary, args.urgency)
+    .run();
+}
+
 /** Reschedule: cancel the old booking and create the new one in one transaction. */
 export async function rescheduleBooking(
   db: D1Database,

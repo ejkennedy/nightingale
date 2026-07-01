@@ -2,6 +2,7 @@
 -- Synthetic demo data. Re-run `bun run db:generate-seed` to refresh dates.
 PRAGMA foreign_keys = ON;
 DELETE FROM events;
+DELETE FROM escalations;
 DELETE FROM appointments;
 DELETE FROM slots;
 DELETE FROM call_logs;

@@ -9,10 +9,14 @@ import type { Context } from 'hono';
 import { z } from 'zod';
 import type { Env } from '../env';
 import {
+  answerFaq,
   bookAppointment,
   cancelAppointment,
+  capturePrescription,
+  confirmAppointments,
   listSlots,
   rescheduleAppointment,
+  triage,
   type ToolErrorCode,
   type ToolResult,
 } from '../services/appointments';
@@ -33,6 +37,17 @@ const rescheduleBody = z.object({
   newSlotId: z.string().min(1),
   appointmentId: z.string().min(1).optional(),
   reason: z.string().max(140).optional(),
+});
+const confirmBody = z.object({ identity });
+const faqBody = z.object({ question: z.string().min(1).max(300) });
+const prescriptionBody = z.object({
+  identity,
+  medication: z.string().min(1).max(120),
+  notes: z.string().max(300).optional(),
+});
+const triageBody = z.object({
+  symptoms: z.string().min(1).max(500),
+  identity: identity.optional(),
 });
 
 /** HTTP status for each guarded failure code. */
@@ -86,4 +101,32 @@ tools.post('/reschedule', async (c) => {
   if (!parsed.success)
     return c.json({ ok: false, code: 'invalid_input', issues: parsed.error.issues }, 400);
   return respond(c, await rescheduleAppointment(ctxFrom(c.env), parsed.data));
+});
+
+tools.post('/confirm', async (c) => {
+  const parsed = confirmBody.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success)
+    return c.json({ ok: false, code: 'invalid_input', issues: parsed.error.issues }, 400);
+  return respond(c, await confirmAppointments(ctxFrom(c.env), parsed.data));
+});
+
+tools.post('/faq', async (c) => {
+  const parsed = faqBody.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success)
+    return c.json({ ok: false, code: 'invalid_input', issues: parsed.error.issues }, 400);
+  return respond(c, answerFaq(parsed.data));
+});
+
+tools.post('/prescription', async (c) => {
+  const parsed = prescriptionBody.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success)
+    return c.json({ ok: false, code: 'invalid_input', issues: parsed.error.issues }, 400);
+  return respond(c, await capturePrescription(ctxFrom(c.env), parsed.data));
+});
+
+tools.post('/triage', async (c) => {
+  const parsed = triageBody.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success)
+    return c.json({ ok: false, code: 'invalid_input', issues: parsed.error.issues }, 400);
+  return respond(c, await triage(ctxFrom(c.env), parsed.data));
 });

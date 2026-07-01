@@ -6,6 +6,9 @@
  * jailbroken prompt cannot reach a mutation without a matching name + DOB because
  * these functions — not the prompt — hold the gate.
  */
+import { classifyUrgency, detectRedFlags, type Urgency } from '../domain/guardrails';
+import { answerFromKnowledge } from '../domain/knowledge';
+import { redactPayload } from '../domain/redact';
 import { formatSlotHuman } from '../domain/scheduling';
 import { isBookable } from '../domain/scheduling';
 import type { IdentityClaim, SlotOffer } from '../domain/types';
@@ -16,6 +19,7 @@ import {
   getSlotById,
   getUpcomingAppointments,
   insertBooking,
+  insertEscalation,
   rescheduleBooking,
   type BookedAppointment,
 } from '../db/queries';
@@ -160,6 +164,106 @@ export async function rescheduleAppointment(
     to: formatSlotHuman(newSlot.starts_at, ctx.timeZone),
     practitionerName: await practitionerNameForSlot(ctx.db, newSlot.id),
   };
+}
+
+/** Read back an identity-verified patient's upcoming appointments. */
+export async function confirmAppointments(
+  ctx: Ctx,
+  input: { identity: IdentityClaim },
+): Promise<
+  ToolResult<{
+    appointments: Array<{ appointmentId: string; when: string; practitionerName: string }>;
+  }>
+> {
+  const patient = await findPatientByIdentity(ctx.db, input.identity);
+  if (!patient) return fail('identity_unverified', 'Could not verify your identity.');
+  const upcoming = await getUpcomingAppointments(ctx.db, patient.id, ctx.now.toISOString());
+  return { ok: true, appointments: describeAll(upcoming, ctx.timeZone) };
+}
+
+/** Answer a practice FAQ strictly from the grounded knowledge base. */
+export function answerFaq(input: { question: string }): ToolResult<{
+  answer: string;
+  grounded: boolean;
+  topicId?: string;
+}> {
+  const match = answerFromKnowledge(input.question);
+  return { ok: true, answer: match.answer, grounded: match.matched, topicId: match.topicId };
+}
+
+/**
+ * Capture a repeat-prescription request and route it to a human. Never fulfils
+ * or confirms medication (ADR-0006/0007) — it only records and hands off.
+ */
+export async function capturePrescription(
+  ctx: Ctx,
+  input: { identity: IdentityClaim; medication: string; notes?: string },
+): Promise<ToolResult<{ reference: string; message: string }>> {
+  const patient = await findPatientByIdentity(ctx.db, input.identity);
+  if (!patient) return fail('identity_unverified', 'Could not verify your identity.');
+
+  const reference = crypto.randomUUID();
+  await insertEscalation(ctx.db, {
+    id: reference,
+    type: 'prescription',
+    patientId: patient.id,
+    summary: `Repeat prescription request: ${input.medication}`.slice(0, 200),
+    urgency: 'routine',
+  });
+  return {
+    ok: true,
+    reference,
+    message:
+      `Thanks — I've logged your repeat-prescription request for ${input.medication} and passed it to the practice pharmacist. ` +
+      "You'll be contacted once it's ready. I can't issue medication myself.",
+  };
+}
+
+export type TriageAction = 'call_999' | 'human_callback' | 'offer_routine';
+
+/**
+ * Assess urgency from symptoms and route accordingly. Gives NO medical advice
+ * and never diagnoses — red flags go straight to 999/human. Stores only a
+ * minimal, non-clinical summary (data minimisation).
+ */
+export async function triage(
+  ctx: Ctx,
+  input: { symptoms: string; identity?: IdentityClaim },
+): Promise<
+  ToolResult<{ urgency: Urgency; action: TriageAction; message: string; reference: string }>
+> {
+  const flags = detectRedFlags(input.symptoms);
+  const urgency = classifyUrgency(input.symptoms);
+
+  const patient = input.identity ? await findPatientByIdentity(ctx.db, input.identity) : null;
+  const reference = crypto.randomUUID();
+  await insertEscalation(ctx.db, {
+    id: reference,
+    type: 'triage',
+    patientId: patient?.id ?? null,
+    summary: JSON.stringify(redactPayload({ triage: urgency, flags: flags.matched })),
+    urgency,
+  });
+
+  let action: TriageAction;
+  let message: string;
+  if (urgency === 'emergency') {
+    action = 'call_999';
+    message =
+      'This could be a medical emergency. Please hang up and call 999 straight away. ' +
+      "I'm alerting a clinician now. I can't give medical advice.";
+  } else if (urgency === 'urgent') {
+    action = 'human_callback';
+    message =
+      "I can't give medical advice, but this needs to be seen urgently. I've flagged it and the " +
+      'practice will call you back as a priority. If it gets worse, call 111, or 999 in an emergency.';
+  } else {
+    action = 'offer_routine';
+    message =
+      "I can't give medical advice. This doesn't sound like an emergency — would you like me to book " +
+      'a routine appointment, or pass a note to a clinician?';
+  }
+  return { ok: true, urgency, action, message, reference };
 }
 
 // --- helpers ---
