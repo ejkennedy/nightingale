@@ -6,7 +6,22 @@ All notable changes to Nightingale are documented here. The format follows
 
 ## [Unreleased]
 
-### Sprint 1 — Data model &amp; core tool router (in progress)
+### Sprint 2 — Full call coverage, brain, sim harness, guardrails &amp; security
+
+- Remaining call types: confirm, FAQ (grounded knowledge), repeat-prescription
+  (captured &amp; routed, never fulfilled) and urgent triage (red-flag → 999, no
+  medical advice), with a new `escalations` table.
+- Deterministic clinical guardrails (red-flag / injection / urgency detection).
+- Swappable agent brain (ADR-0004): thin OpenAI function-calling client + a
+  key-free deterministic MockBrain; shared tool schemas; versioned system prompt
+  in R2 with a bundled fallback.
+- Agent loop + simulated harness: scripted scenarios (tier 3, no keys) and
+  free-text chat (tier 2), logging a redacted transcript + tool latency.
+- Security: HMAC-verified ElevenLabs webhook; per-IP rate-limiter Durable Object.
+- Eval harness + adversarial dataset (`evals/`) scoring tool selection and
+  guardrail invariants; 9/9 on MockBrain in CI, live-GPT-ready.
+
+### Sprint 1 — Data model &amp; core tool router
 
 - D1 schema (practitioners, patients, slots, appointments, call_logs, events)
   with a partial unique index enforcing one live appointment per slot.
