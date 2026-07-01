@@ -17,7 +17,7 @@ Build one backend tool contract and drive it from **three interchangeable
 front-ends**, degrading gracefully by available secrets:
 
 1. **Tier 1 — Voice:** ElevenLabs browser widget (real STT+LLM+TTS).
-2. **Tier 2 — GPT chat:** type-as-patient, GPT plays the agent with the *same*
+2. **Tier 2 — GPT chat:** type-as-patient, GPT plays the agent with the _same_
    tools. Needs an OpenAI key.
 3. **Tier 3 — Scripted:** one-click deterministic call scenarios that replay
    canned turns while executing **real tool calls against D1**. Needs no keys.

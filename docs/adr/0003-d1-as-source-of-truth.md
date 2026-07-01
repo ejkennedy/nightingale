@@ -18,7 +18,7 @@ Cloudflare **D1 is the single source of truth** for `practitioners`, `patients`,
 read and write D1 only. The dataset is resettable with one click (re-seed) so
 every demo starts clean.
 
-A real Google Calendar *mirror* is explicitly deferred as an optional visual
+A real Google Calendar _mirror_ is explicitly deferred as an optional visual
 flourish; if built, it must be best-effort and non-blocking.
 
 ## Consequences

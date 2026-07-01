@@ -5,7 +5,7 @@
 
 ## Context
 
-Nightingale is portfolio work whose value is partly in *showing the reasoning*,
+Nightingale is portfolio work whose value is partly in _showing the reasoning_,
 not just the result. Design decisions were made in a structured grilling session
 and should be captured where a reviewer (or future me) can see the trade-offs.
 

@@ -12,11 +12,13 @@ also never overstep into clinical advice or act on unverified identity.
 ## Decision
 
 **Access model**
+
 - Dashboard is **public read-only** — no login, instant hand-off.
 - Mutating admin actions (re-seed DB, edit prompts) require an **admin token**.
 - Simulated booking writes are **rate-limited per-IP via a Durable Object**.
 
 **Trust &amp; safety**
+
 - Inbound ElevenLabs tool-call webhooks are **HMAC-verified** with a shared secret.
 - `confirm` / `cancel` / `reschedule` require **name + date-of-birth** identity
   verification before revealing or mutating an appointment.
