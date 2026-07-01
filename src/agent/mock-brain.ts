@@ -18,11 +18,17 @@ function lastUserMessage(messages: BrainMessage[]): string {
 
 function extractIdentity(text: string): { lastName?: string; dob?: string } {
   const dob = text.match(/\b(\d{4}-\d{2}-\d{2})\b/)?.[1];
-  const name = text.match(/\b(?:name is|i'?m|this is|surname|last name)\s+([a-z]+(?:\s+[a-z]+)?)/i);
   let lastName: string | undefined;
-  if (name?.[1]) {
-    const parts = name[1].trim().split(/\s+/);
+
+  // Prefer an explicit lead-in ("my name is X Y", "I'm X Y", "this is X Y").
+  const lead = text.match(/\b(?:name is|i'?m|this is|surname|last name)\s+([a-z]+(?:\s+[a-z]+)?)/i);
+  if (lead?.[1]) {
+    const parts = lead[1].trim().split(/\s+/);
     lastName = parts[parts.length - 1];
+  } else {
+    // Fallback: a capitalised "First Last" name stated bare (take the surname).
+    const cap = text.match(/\b([A-Z][a-z]+)\s+([A-Z][a-z]+)\b/);
+    if (cap?.[2]) lastName = cap[2];
   }
   return { lastName, dob };
 }
