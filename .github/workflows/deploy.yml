@@ -1,0 +1,56 @@
+name: Deploy
+
+# Continuous deployment to Cloudflare Workers on every push to main.
+#
+# DORMANT BY DEFAULT: the job is skipped until you opt in, so the Actions tab
+# stays green while the project is still local-only. To enable live CD:
+#   1. wrangler d1 create nightingale  -> copy the database_id into wrangler.toml
+#   2. Create a scoped Cloudflare API token (Workers Scripts:Edit + D1:Edit)
+#   3. Add repo secrets:   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+#   4. Add repo variable:  DEPLOY_ENABLED = true
+#   5. Add the runtime secrets via `wrangler secret put` (OPENAI_API_KEY, etc.)
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Workers
+    runs-on: ubuntu-latest
+    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck & test before deploy
+        run: |
+          bunx wrangler types
+          bun run typecheck
+          bun run test
+
+      - name: Apply D1 migrations (remote)
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply nightingale --remote
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
