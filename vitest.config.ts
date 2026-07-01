@@ -1,11 +1,26 @@
-import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'node:url';
+import { defineWorkersConfig, readD1Migrations } from '@cloudflare/vitest-pool-workers/config';
 
-// Sprint 0: fast, deterministic unit tests for pure domain logic (Node env).
-// Sprint 1 adds @cloudflare/vitest-pool-workers for integration tests that run
-// inside the real workerd runtime against a local D1 database.
-export default defineConfig({
-  test: {
-    include: ['test/**/*.test.ts'],
-    environment: 'node',
-  },
+// All tests run inside the real workerd runtime. Pure domain tests don't touch
+// bindings; integration tests exercise the tool router + services against a real
+// local D1, seeded from migrations/ (ADR-0007: testing throughout).
+export default defineWorkersConfig(async () => {
+  const migrationsDir = fileURLToPath(new URL('./migrations', import.meta.url));
+  const migrations = await readD1Migrations(migrationsDir);
+
+  return {
+    test: {
+      include: ['test/**/*.test.ts'],
+      setupFiles: ['./test/apply-migrations.ts'],
+      poolOptions: {
+        workers: {
+          wrangler: { configPath: './wrangler.toml' },
+          miniflare: {
+            // Passed to the setup file, which applies them to the test D1.
+            bindings: { TEST_MIGRATIONS: migrations },
+          },
+        },
+      },
+    },
+  };
 });
