@@ -33,15 +33,18 @@ function toWebhookTool(t: (typeof TOOL_SCHEMAS)[number], o: BuildOpts) {
     api_schema: {
       url: `${o.workerUrl}/webhooks/elevenlabs/tool`,
       method: 'POST',
-      request_headers: [
-        { type: 'value', name: 'content-type', value: 'application/json' },
-        // The Worker authenticates this static token (see WEBHOOK_TOKEN).
-        { type: 'value', name: 'x-webhook-token', value: o.webhookToken ?? '${WEBHOOK_TOKEN}' },
-      ],
+      // request_headers is a { name: value } map. The Worker authenticates the
+      // static token (see WEBHOOK_TOKEN); it's stored server-side at ElevenLabs.
+      request_headers: {
+        'content-type': 'application/json',
+        'x-webhook-token': o.webhookToken ?? '${WEBHOOK_TOKEN}',
+      },
       request_body_schema: {
         type: 'object',
         properties: {
-          tool: { type: 'string', description: 'Dispatch target.', constant_value: t.name },
+          // A property may set exactly ONE of description / constant_value / … —
+          // `tool` is a fixed dispatch target, so it carries only constant_value.
+          tool: { type: 'string', constant_value: t.name },
           parameters: t.parameters,
         },
         required: ['tool', 'parameters'],
