@@ -39,7 +39,10 @@ export interface Env {
 export type ResilienceTier = 'voice' | 'gpt' | 'scripted';
 
 export function activeTier(env: Env): ResilienceTier {
-  if (env.ELEVENLABS_API_KEY && env.ELEVENLABS_AGENT_ID) return 'voice';
+  // The browser widget only needs the agent id (a public agent); ELEVENLABS_API_KEY
+  // is required solely for private-agent signed URLs. So the agent id alone means
+  // live voice is on the page.
+  if (env.ELEVENLABS_AGENT_ID) return 'voice';
   if (env.OPENAI_API_KEY) return 'gpt';
   return 'scripted';
 }

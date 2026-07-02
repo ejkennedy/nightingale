@@ -23,19 +23,22 @@ describe('activeTier — resilience degradation', () => {
     expect(activeTier(envWith({ OPENAI_API_KEY: 'sk-test' }))).toBe('gpt');
   });
 
-  it('prefers the voice tier when ElevenLabs is fully configured', () => {
+  it('prefers the voice tier when the ElevenLabs agent id is set, over GPT', () => {
     expect(
       activeTier(
         envWith({
           OPENAI_API_KEY: 'sk-test',
-          ELEVENLABS_API_KEY: 'el-test',
           ELEVENLABS_AGENT_ID: 'agent-123',
         }),
       ),
     ).toBe('voice');
   });
 
-  it('does not claim the voice tier if the ElevenLabs agent id is missing', () => {
+  it('unlocks voice with the agent id alone (public agent needs no API key)', () => {
+    expect(activeTier(envWith({ ELEVENLABS_AGENT_ID: 'agent-123' }))).toBe('voice');
+  });
+
+  it('does not claim the voice tier from an API key without an agent id', () => {
     expect(activeTier(envWith({ ELEVENLABS_API_KEY: 'el-test' }))).toBe('scripted');
   });
 });
