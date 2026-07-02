@@ -166,13 +166,19 @@ Built in the open as portfolio work, following a lightweight Agile process
 for the sprint roadmap and **[docs/adr/](./docs/adr/)** for the architecture
 decision records.
 
-| Sprint | Focus                                                   | Status     |
-| ------ | ------------------------------------------------------- | ---------- |
-| 0      | Foundation, CI/CD, docs                                 | ✅ done    |
-| 1      | Data model + core tool router                           | ✅ done    |
-| 2      | Full call coverage + GPT brain + sim harness + security | ✅ done    |
-| 3      | Dashboard + observability + email                       | ✅ done    |
-| 4      | Real ElevenLabs voice + polish + live deploy            | ⚪ planned |
+| Sprint | Focus                                                   | Status         |
+| ------ | ------------------------------------------------------- | -------------- |
+| 0      | Foundation, CI/CD, docs                                 | ✅ done        |
+| 1      | Data model + core tool router                           | ✅ done        |
+| 2      | Full call coverage + GPT brain + sim harness + security | ✅ done        |
+| 3      | Dashboard + observability + email                       | ✅ done        |
+| 4      | Voice + UI polish + evals + security + deploy prep      | 🟡 in progress |
+
+Sprint 4 so far: the UI redesign, published [eval report](./docs/EVAL_REPORT.md)
+and [security review](./docs/SECURITY_REVIEW.md) are done, and Tier-1 voice +
+live deploy are wired to a single command
+([voice](./docs/VOICE_SETUP.md) · [deploy](./docs/DEPLOY.md)) — pending only the
+ElevenLabs / Cloudflare credentials to go live.
 
 ## License
 

@@ -6,6 +6,30 @@ All notable changes to Nightingale are documented here. The format follows
 
 ## [Unreleased]
 
+### Sprint 4 — Voice, deploy, evals, security &amp; a polished UI
+
+- **Dashboard redesign** — a cohesive "calm clinic" design system (warm paper,
+  pine-green ink, a Fraunces wordmark with a lamp mark, mono data). Accessible
+  (focus rings, reduced-motion) and responsive to 390px. Portfolio screenshots in
+  `docs/`.
+- **Tier-1 voice, one command away** — the dashboard embeds the ElevenLabs Convai
+  widget when `ELEVENLABS_AGENT_ID` is set (graceful "how to enable" state
+  otherwise). Agent tool calls are authenticated by HMAC **or** a static
+  `x-webhook-token`, and run through the same guarded services. `voice:config`
+  generates the agent from the code's own prompt + tools; `voice:provision`
+  creates it via the API; `GET /voice/signed-url` supports private agents. See
+  [docs/VOICE_SETUP.md](./docs/VOICE_SETUP.md).
+- **One-command deploy** — `bun run cf:bootstrap` provisions D1 + R2 + remote
+  migrations idempotently; dormant GitHub CD flips on via `DEPLOY_ENABLED`. See
+  [docs/DEPLOY.md](./docs/DEPLOY.md).
+- **Published eval report** — `bun run eval:report` renders
+  [docs/EVAL_REPORT.md](./docs/EVAL_REPORT.md) from a real run (9/9: 4 happy-path
+  + 5 adversarial); numbers are never hand-typed.
+- **Security review** — evidence-based verification of all controls
+  ([docs/SECURITY_REVIEW.md](./docs/SECURITY_REVIEW.md)); the deployed bundle
+  (hono + zod) carries no open advisories.
+- README hero + 90-second tour; 97 tests green in CI.
+
 ### Sprint 3 — Live dashboard, observability &amp; confirmation emails
 
 - Single-URL demo console (now the landing page): stats row (calls, containment,
