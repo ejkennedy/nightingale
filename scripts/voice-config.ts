@@ -68,7 +68,9 @@ export function buildAgentConfig(o: BuildOpts) {
           tools: TOOL_SCHEMAS.map((t) => toWebhookTool(t, o)),
         },
       },
-      tts: { model_id: 'eleven_flash_v2_5' },
+      // English agents must use an English TTS model (turbo/flash v2), not the
+      // multilingual v2.5. flash v2 keeps latency low (~75ms).
+      tts: { model_id: 'eleven_flash_v2' },
     },
   };
 }
