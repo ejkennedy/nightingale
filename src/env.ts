@@ -24,7 +24,10 @@ export interface Env {
   OPENAI_API_KEY?: string;
   ELEVENLABS_API_KEY?: string;
   ELEVENLABS_AGENT_ID?: string;
+  /** HMAC key for signed inbound tool webhooks (signers that support signing). */
   WEBHOOK_HMAC_SECRET?: string;
+  /** Static bearer token accepted on `x-webhook-token` (ElevenLabs webhook tools). */
+  WEBHOOK_TOKEN?: string;
   RESEND_API_KEY?: string;
   RESEND_FROM?: string;
   ADMIN_TOKEN?: string;

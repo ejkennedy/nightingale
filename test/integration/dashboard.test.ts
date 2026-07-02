@@ -40,6 +40,13 @@ describe('dashboard page', () => {
     expect(html).toContain('Run a demo call');
     expect(html).toContain('Demonstration only'); // synthetic-data banner
   });
+
+  it('shows the voice panel in its unconfigured state (no agent id in test env)', async () => {
+    const html = await (await get('/')).text();
+    expect(html).toContain('Talk to Nightingale');
+    expect(html).toContain('Voice setup guide'); // off-state CTA
+    expect(html).not.toContain('<elevenlabs-convai'); // widget not embedded without a key
+  });
 });
 
 describe('running a scenario updates the live panels + email', () => {

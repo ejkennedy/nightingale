@@ -60,6 +60,9 @@ const LampMark: FC = () => (
 
 const Layout: FC<{ env: Env }> = ({ env }) => {
   const tier = activeTier(env);
+  // Only trust an alphanumeric agent id into the widget markup.
+  const agentId = (env.ELEVENLABS_AGENT_ID ?? '').replace(/[^a-zA-Z0-9_-]/g, '');
+  const voiceReady = agentId.length > 0;
   return (
     <html lang="en">
       <head>
@@ -145,6 +148,38 @@ const Layout: FC<{ env: Env }> = ({ env }) => {
                 <span id="reseed-status" class="run-status"></span>
               </form>
             </details>
+          </section>
+
+          <section class="panel voice">
+            <h2>
+              Talk to Nightingale <span class="tag">tier 1 · voice</span>
+            </h2>
+            {voiceReady ? (
+              <>
+                <p class="hint">
+                  Press the mic and speak. The live ElevenLabs agent runs the same tools — every
+                  booking calls back into this Worker's HMAC-signed webhook.
+                </p>
+                {raw(
+                  `<elevenlabs-convai agent-id="${agentId}"></elevenlabs-convai>` +
+                    `<script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>`,
+                )}
+              </>
+            ) : (
+              <div class="voice-off">
+                <p class="hint">
+                  Live voice isn't configured — this demo is running in a no-keys tier. Provision an
+                  ElevenLabs agent (one command) and set <code>ELEVENLABS_AGENT_ID</code> to light
+                  it up. The scripted and GPT tiers below work with zero keys.
+                </p>
+                <a
+                  class="btn ghost"
+                  href="https://github.com/ejkennedy/nightingale/blob/main/docs/VOICE_SETUP.md"
+                >
+                  Voice setup guide →
+                </a>
+              </div>
+            )}
           </section>
 
           <div id="stats" hx-get="/ui/stats" hx-trigger="load, every 3s" hx-swap="innerHTML"></div>
@@ -487,6 +522,9 @@ h2{font-family:var(--font-display);font-weight:500;font-size:16.5px;color:var(--
 .hint{color:var(--muted);font-size:13.5px;margin:6px 0 14px;max-width:62ch}
 .tag{font-family:var(--font-mono);font-size:10.5px;font-weight:400;color:var(--muted);background:var(--paper-2);border:1px solid var(--line);padding:2px 8px;border-radius:999px}
 .panel-body{min-height:56px;overflow-x:auto}
+.voice-off{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.voice elevenlabs-convai{display:block;margin-top:8px}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--paper-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--pine)}
 
 /* --- buttons --- */
 .scenarios{display:flex;flex-wrap:wrap;gap:10px}

@@ -55,4 +55,24 @@ describe('POST /webhooks/elevenlabs/tool', () => {
     expect(body.ok).toBe(true);
     expect(body.slots.length).toBe(1);
   });
+
+  it('accepts a matching static webhook token (ElevenLabs tool header path)', async () => {
+    const res = await SELF.fetch('https://nightingale.test/webhooks/elevenlabs/tool', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-webhook-token': 'test-webhook-token' },
+      body: JSON.stringify({ tool: 'list_slots', parameters: { role: 'GP' } }),
+    });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { ok: boolean };
+    expect(body.ok).toBe(true);
+  });
+
+  it('rejects a wrong static webhook token (401)', async () => {
+    const res = await SELF.fetch('https://nightingale.test/webhooks/elevenlabs/tool', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-webhook-token': 'nope' },
+      body: JSON.stringify({ tool: 'list_slots', parameters: {} }),
+    });
+    expect(res.status).toBe(401);
+  });
 });

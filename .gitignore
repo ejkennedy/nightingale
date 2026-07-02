@@ -15,6 +15,10 @@ worker-configuration.d.ts
 # Local D1 / miniflare state
 .mf/
 
+# Generated ElevenLabs agent config (may embed WEBHOOK_TOKEN) — regenerate with
+# `bun run voice:config`. The generator script is the committed source of truth.
+voice/agent-config.json
+
 # Logs & OS cruft
 *.log
 .DS_Store

@@ -23,8 +23,16 @@ export default defineWorkersConfig(async () => {
             bindings: {
               TEST_MIGRATIONS: migrations,
               WEBHOOK_HMAC_SECRET: 'test-secret',
+              WEBHOOK_TOKEN: 'test-webhook-token',
               ADMIN_TOKEN: 'test-admin',
               ENVIRONMENT: 'test',
+              // Keep tests hermetic: neutralise any local .dev.vars the pool would
+              // otherwise load, so tier-gated behaviour is deterministic and no
+              // test ever reaches a real upstream (OpenAI / ElevenLabs).
+              OPENAI_API_KEY: '',
+              ELEVENLABS_API_KEY: '',
+              ELEVENLABS_AGENT_ID: '',
+              RESEND_API_KEY: '',
             },
           },
         },

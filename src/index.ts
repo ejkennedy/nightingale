@@ -6,6 +6,7 @@ import { activeTier } from './env';
 import { tools } from './routes/tools';
 import { sim } from './routes/sim';
 import { webhooks } from './routes/webhooks';
+import { voice } from './routes/voice';
 import { dashboard } from './routes/dashboard';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -19,6 +20,8 @@ app.route('/tools', tools);
 app.route('/sim', sim);
 // HMAC-verified webhook for the real ElevenLabs agent.
 app.route('/webhooks', webhooks);
+// Tier-1 voice support (signed URL for private ElevenLabs agents).
+app.route('/voice', voice);
 // Demo dashboard (page at / and HTMX fragments at /ui/*).
 app.route('/', dashboard);
 

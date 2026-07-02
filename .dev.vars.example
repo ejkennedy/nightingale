@@ -7,11 +7,17 @@
 # --- Tier 2: GPT text-chat harness + real agent reasoning ---
 OPENAI_API_KEY=""
 
-# --- Tier 1: real ElevenLabs voice widget + signed tool webhooks ---
+# --- Tier 1: real ElevenLabs voice widget + tool webhooks ---
+# ELEVENLABS_AGENT_ID alone lights up the browser widget (public agent).
+# ELEVENLABS_API_KEY additionally lets the Worker mint signed URLs (private agents).
 ELEVENLABS_API_KEY=""
 ELEVENLABS_AGENT_ID=""
-# Shared secret used to HMAC-verify inbound ElevenLabs tool-call webhooks.
+# Inbound tool-call auth — set ONE and give it to the agent's tool config:
+#   WEBHOOK_HMAC_SECRET — verified as an HMAC signature over the request body.
+#   WEBHOOK_TOKEN       — matched against the `x-webhook-token` request header
+#                         (simplest: set this and add the header in each tool).
 WEBHOOK_HMAC_SECRET=""
+WEBHOOK_TOKEN=""
 
 # --- Real email confirmations (optional; preview always renders without it) ---
 RESEND_API_KEY=""
