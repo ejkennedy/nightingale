@@ -28,12 +28,28 @@ export function isValidDob(dob: string): boolean {
 }
 
 /**
+ * Coerce a caller-supplied DOB to canonical 'YYYY-MM-DD', or null if it isn't a
+ * valid year-first date. A spoken date often reaches the tool as '1979-11-5',
+ * '1979/11/05' or '1979.11.5' — we accept those (zero-pad + separators) so voice
+ * verification isn't brittle. We deliberately DO NOT accept day-first / ambiguous
+ * orders ('05/11/1979'): guessing day-vs-month on an identity gate is unsafe.
+ */
+export function normaliseDob(input: string): string | null {
+  const m = input.trim().match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if (!m) return null;
+  const iso = `${m[1]}-${m[2]!.padStart(2, '0')}-${m[3]!.padStart(2, '0')}`;
+  return isValidDob(iso) ? iso : null;
+}
+
+/**
  * Does the patient satisfy the identity claim? Last name normalised-equal AND
- * DOB exactly equal. Never throws.
+ * DOB exactly equal (after canonicalising both to ISO). Never throws.
  */
 export function matchesIdentity(patient: Patient, claim: IdentityClaim): boolean {
-  if (!isValidDob(claim.dob)) return false;
+  const claimDob = normaliseDob(claim.dob);
+  if (!claimDob) return false;
+  const patientDob = normaliseDob(patient.dob) ?? patient.dob;
   return (
-    normaliseName(patient.last_name) === normaliseName(claim.lastName) && patient.dob === claim.dob
+    normaliseName(patient.last_name) === normaliseName(claim.lastName) && patientDob === claimDob
   );
 }

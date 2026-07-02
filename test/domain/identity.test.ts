@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { isValidDob, matchesIdentity, normaliseName } from '../../src/domain/identity';
+import {
+  isValidDob,
+  matchesIdentity,
+  normaliseDob,
+  normaliseName,
+} from '../../src/domain/identity';
 import type { Patient } from '../../src/domain/types';
 
 const patient: Patient = {
@@ -29,9 +34,28 @@ describe('isValidDob', () => {
   });
 });
 
+describe('normaliseDob — caller-friendly date coercion', () => {
+  it('canonicalises zero-padding and separators', () => {
+    expect(normaliseDob('1984-03-22')).toBe('1984-03-22');
+    expect(normaliseDob('1984-3-22')).toBe('1984-03-22');
+    expect(normaliseDob('1984/3/2')).toBe('1984-03-02');
+    expect(normaliseDob('1984.03.22')).toBe('1984-03-22');
+  });
+  it('rejects day-first / ambiguous or impossible dates', () => {
+    expect(normaliseDob('22/03/1984')).toBeNull(); // day-first is unsafe to guess
+    expect(normaliseDob('1984-13-01')).toBeNull();
+    expect(normaliseDob('not a date')).toBeNull();
+  });
+});
+
 describe('matchesIdentity — the guardrail predicate', () => {
   it('matches on normalised last name + exact DOB', () => {
     expect(matchesIdentity(patient, { lastName: 'okafor', dob: '1984-03-22' })).toBe(true);
+  });
+
+  it('tolerates a spoken DOB that lost its zero-padding or uses slashes', () => {
+    expect(matchesIdentity(patient, { lastName: 'Okafor', dob: '1984-3-22' })).toBe(true);
+    expect(matchesIdentity(patient, { lastName: 'Okafor', dob: '1984/03/22' })).toBe(true);
   });
 
   it('rejects a wrong DOB even with the right name', () => {
