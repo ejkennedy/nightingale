@@ -110,6 +110,14 @@ const patients = [
     phone: '07700900006',
     email: 'daniel.osborne@example.com',
   },
+  {
+    id: 'p-ross',
+    first: 'Bob',
+    last: 'Ross',
+    dob: '2001-01-01',
+    phone: '07700900007',
+    email: 'bob.ross@example.com',
+  },
 ] as const;
 
 // London wall-clock slot times per practitioner type.
